@@ -1,9 +1,27 @@
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class Main {
 
-
     private static String generatedNum = "";
+    private static PrintStream pw;
+
+    static {
+        try {
+            pw = new PrintStream(new FileOutputStream("log.txt", true));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    Main() {
+    }
 
     private static void startGameMessage() {
         System.out.println("Начало игры!");
@@ -15,8 +33,60 @@ class Main {
         while (isUniqueNumbers(generatedNum)) {
             genRandomKey();
         }
-        System.out.println(generatedNum);
         return generatedNum;
+    }
+
+    private static int gameFinder() throws IOException {
+        int gamesCount = 1;
+        List<String> list = Files.readAllLines(Path.of("log.txt"));
+        Pattern pattern = Pattern.compile("(№)(\\d)");
+        Matcher match = pattern.matcher(list.toString());
+        while (match.find()) {
+            gamesCount = Integer.parseInt(match.group(2)) + 1;
+        }
+        return gamesCount;
+    }
+
+    private static void logger() throws IOException {
+        String gameMessage = "Game №" + gameFinder() + " " + LocalDate.now() + " Загаданная строка " + generatedNum + "\n";
+        pw.append(gameMessage);
+    }
+    private static int tries = 0;
+    private static void logger(int bulls, int cows) {
+        String gameMessage = "";
+        if (bulls == 1 && cows == 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " бык и " + cows + " корова";
+        } else if (bulls == 1 && cows > 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " бык и " + cows + " коровы";
+        } else if (bulls > 1 && cows == 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быков и " + cows + " корова";
+        } else if (bulls > 1 && cows > 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быка и " + cows + " коровы";
+        } else if (bulls == 0 && cows > 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быков и " + cows + " коровы";
+        } else if (bulls == 0 && cows == 1) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быков и " + cows + " корова";
+        } else if (bulls > 1 && cows == 0 && bulls != 4) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быка и " + cows + " коров";
+        } else if (bulls == 1 && cows == 0) {
+            tries++;
+            gameMessage = "У вас " + bulls + " бык и " + cows + " коров";
+        } else if (bulls == 0 & cows == 0) {
+            tries++;
+            gameMessage = "У вас " + bulls + " быков и " + cows + " коров";
+        } else if (bulls==4){
+            tries++;
+            gameMessage = "Вы победили, количество попыток " + tries++;;
+        }
+        System.out.println(gameMessage);
+        pw.append(gameMessage + "\n");
     }
 
     private static boolean isUniqueNumbers(String num) {
@@ -55,60 +125,28 @@ class Main {
         return cowsCount;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
         startGameMessage();
         genRandomKey();
 
         int bulls = 0;
         int cows = 0;
-        int playerTries = 1;
+        int playerAttempts = 1;
 
-        while (bulls != 4) {
-            System.out.print("Запрос " + playerTries + ": ");
+        boolean flag = false;
+        while (true) {
+            System.out.print("Запрос " + playerAttempts + ": ");
             String playerKey = sc.nextLine();
+            if (!flag) {
+                logger();
+                flag = true;
+            }
             bulls = checkingForBulls(playerKey, generatedNum);
             cows = checkingForCows(playerKey, generatedNum);
-
-
-            if (isUniqueNumbers(playerKey)) {
-                System.out.println("Вы должны ввести число без повторений");
-            } else if (bulls == 1 && cows == 1) {
-                System.out.printf("У вас %d бык и %d корова\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 1 && cows > 1) {
-                System.out.printf("У вас %d бык и %d коровы\n", bulls, cows);
-                playerTries++;
-            } else if (bulls > 1 && cows == 1) {
-                System.out.printf("У вас %d быков и %d корова\n", bulls, cows);
-                playerTries++;
-            } else if (bulls > 1 && cows > 1) {
-                System.out.printf("У вас %d быка и %d коровы\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 0 && cows > 1) {
-                System.out.printf("У вас %d быков и %d коровы\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 0 && cows == 1) {
-                System.out.printf("У вас %d быков и %d корова\n", bulls, cows);
-                playerTries++;
-            } else if (bulls > 1 && cows == 0 && bulls != 4) {
-                System.out.printf("У вас %d быка и %d коров\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 1 && cows == 0) {
-                System.out.printf("У вас %d бык и %d коров\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 0 & cows == 0) {
-                System.out.printf("\nУ вас %d быков и %d коров\n", bulls, cows);
-                playerTries++;
-            } else if (bulls == 4) {
-                if (playerTries == 2) {
-                    System.out.println("Строка была угадана за 1" + " попытку");
-                } else if (playerTries >= 2 || playerTries <= 4) {
-                    System.out.println("Строка была угадана за " + playerTries + " попытки");
-                } else if (playerTries >= 5) {
-                    System.out.println("Строка была угадана за " + playerTries + " попыток");
-                }
-            }
+            logger(bulls, cows);
+             if (bulls == 4) break;
+             playerAttempts++;
         }
         sc.close();
     }
