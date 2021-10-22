@@ -27,13 +27,12 @@ class Main {
         System.out.println("Начало игры!");
     }
 
-    private static String genRandomKey() {
+    private static void genRandomKey() {
         int randomNumber = 1000 + ((int) (Math.random() * 10000) % 9000);
         generatedNum = Integer.toString(randomNumber);
         while (isUniqueNumbers(generatedNum)) {
             genRandomKey();
         }
-        return generatedNum;
     }
 
     private static int gameFinder() throws IOException {
@@ -52,41 +51,45 @@ class Main {
         pw.append(gameMessage);
     }
     private static int tries = 0;
-    private static void logger(int bulls, int cows) {
+    private static void logger(int bulls, int cows, String playerKey) {
         String gameMessage = "";
-        if (bulls == 1 && cows == 1) {
+        if (isUniqueNumbers(playerKey)) {
             tries++;
-            gameMessage = "У вас " + bulls + " бык и " + cows + " корова";
+           gameMessage = "Запрос: " + playerKey + " Ответ:" + " Числа должны быть уникальными, повторите попытку";
+        }
+        else if (bulls == 1 && cows == 1) {
+            tries++;
+            gameMessage =  "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " бык и " + cows + " корова";
         } else if (bulls == 1 && cows > 1) {
             tries++;
-            gameMessage = "У вас " + bulls + " бык и " + cows + " коровы";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " бык и " + cows + " коровы";
         } else if (bulls > 1 && cows == 1) {
             tries++;
-            gameMessage = "У вас " + bulls + " быков и " + cows + " корова";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быков и " + cows + " корова";
         } else if (bulls > 1 && cows > 1) {
             tries++;
-            gameMessage = "У вас " + bulls + " быка и " + cows + " коровы";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быка и " + cows + " коровы";
         } else if (bulls == 0 && cows > 1) {
             tries++;
-            gameMessage = "У вас " + bulls + " быков и " + cows + " коровы";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быков и " + cows + " коровы";
         } else if (bulls == 0 && cows == 1) {
             tries++;
-            gameMessage = "У вас " + bulls + " быков и " + cows + " корова";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быков и " + cows + " корова";
         } else if (bulls > 1 && cows == 0 && bulls != 4) {
             tries++;
-            gameMessage = "У вас " + bulls + " быка и " + cows + " коров";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быка и " + cows + " коров";
         } else if (bulls == 1 && cows == 0) {
             tries++;
-            gameMessage = "У вас " + bulls + " бык и " + cows + " коров";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " бык и " + cows + " коров";
         } else if (bulls == 0 & cows == 0) {
             tries++;
-            gameMessage = "У вас " + bulls + " быков и " + cows + " коров";
+            gameMessage = "Запрос: " + playerKey + " Ответ:" + " У вас " + bulls + " быков и " + cows + " коров";
         } else if (bulls==4){
             tries++;
-            gameMessage = "Вы победили, количество попыток " + tries++;;
+            gameMessage = "Вы победили, количество попыток " + tries++;
         }
         System.out.println(gameMessage);
-        pw.append(gameMessage + "\n");
+        pw.append(gameMessage).append("\n");
     }
 
     private static boolean isUniqueNumbers(String num) {
@@ -130,8 +133,8 @@ class Main {
         startGameMessage();
         genRandomKey();
 
-        int bulls = 0;
-        int cows = 0;
+        int bulls;
+        int cows;
         int playerAttempts = 1;
 
         boolean flag = false;
@@ -144,7 +147,7 @@ class Main {
             }
             bulls = checkingForBulls(playerKey, generatedNum);
             cows = checkingForCows(playerKey, generatedNum);
-            logger(bulls, cows);
+            logger(bulls, cows, playerKey);
              if (bulls == 4) break;
              playerAttempts++;
         }
